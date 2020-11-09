@@ -1,0 +1,6 @@
+.board {
+    display: flex;
+    flex-direction: row;
+    border: solid 5px #002bff;
+    background-color: #3355ff;
+}
