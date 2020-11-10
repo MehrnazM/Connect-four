@@ -2,6 +2,7 @@ import React from "react"
 import styles from "./App.module.css"
 import { Props, ChipPositions, State } from "./types"
 import Board from "../Board/Board"
+import { lineCompute, diagonalCompute} from "./Compute"
 
 class App extends React.PureComponent <Props, State>{
 
@@ -15,96 +16,35 @@ class App extends React.PureComponent <Props, State>{
     calculateGameStatus = (playerTurn: string, chipPositions: ChipPositions):string => {
 
         const { columns , rows } = this.props
-        let repCountStat = { playerChip : "", count: 0 }
-
+        
         //vertically
-        for(let row=0; row<rows; row++){
-            
-            repCountStat = { playerChip : "", count: 0 }
-            for(let column=0; column<columns; column++){
-                const chip = chipPositions[`${row}:${column}`]
-                if(chip && chip === repCountStat.playerChip){
-                    repCountStat.count++
-                }
-                else{
-                    repCountStat = {playerChip : chip , count : 1}
-                }
-
-                if(repCountStat.count === 4){
-                    
-                    return `${repCountStat.playerChip} won!`
-                }
-            }
+        let res = lineCompute(rows,columns,chipPositions, true)
+        if(res){
+            return res
         }
-
         //horizontally
-        for(let column=0; column<columns; column++){
-            
-            repCountStat = { playerChip : "", count: 0 }
-            for(let row=0; row<rows; row++){
-                const chip = chipPositions[`${row}:${column}`]
-                if(chip && chip === repCountStat.playerChip){
-                    repCountStat.count++
-                }
-                else{
-                    repCountStat = {playerChip : chip , count : 1}
-                }
-
-                if(repCountStat.count === 4){
-                    
-                    return `${repCountStat.playerChip} won!`
-                }
-            }
+        res = lineCompute(columns,rows,chipPositions, false)
+        if(res){
+            return res
         }
-        
-        repCountStat = { playerChip : "", count: 0 }
-        
-        //diagnoally (from right to left)
-        for(let column=0, row=0; column<columns && row<rows; column++,row++){
-            
-            
-            const chip = chipPositions[`${row}:${column}`]
-            if(chip && chip === repCountStat.playerChip){
-                repCountStat.count++
-            }
-            else{
-                repCountStat = {playerChip : chip , count : 1}
-            }
-
-            if(repCountStat.count === 4){
-                
-                return `${repCountStat.playerChip} won!`
-            }
-            
+        //diagonally, right to left
+        res = diagonalCompute(rows,columns,chipPositions,true)
+        if(res){
+            return res
         }
-        
-        repCountStat = { playerChip : "", count: 0 }
-        
-        //diagnoally (from left to right)
-        for(let column=0, row=rows-1; column<columns && row>=0; column++,row--){
-            
-            
-            const chip = chipPositions[`${row}:${column}`]
-            if(chip && chip === repCountStat.playerChip){
-                repCountStat.count++
-            }
-            else{
-                repCountStat = {playerChip : chip , count : 1}
-            }
-
-            if(repCountStat.count === 4){
-                
-                return `${repCountStat.playerChip} won!`
-            }
-            
+        //diagonally,left to right
+        res = diagonalCompute(rows,columns,chipPositions,false)
+        if(res){
+            return res
         }
-        //TODO
+ 
         return `It's ${playerTurn}'s turn`
     }
 
     handleTileClick = (tileId: string) => {
 
         const { chipPositions, playerTurn } = this.state
+        console.log(tileId)
         const column = parseInt(tileId.split(":")[1])
         let lastEmptyTileId = this.getLastEmptyTile(column)
         
